@@ -3,7 +3,7 @@ import pynmea2
 import time
 import logging
 
-def read_gps(port='/dev/serial0', baudrate=9600, timeout=1, max_wait=15):
+def read_gps(port='/dev/serial0', baudrate=9600, timeout=1, max_wait=15) -> dict:
     try:
         with serial.Serial(port, baudrate=baudrate, timeout=timeout) as ser:
             start_time = time.time()
