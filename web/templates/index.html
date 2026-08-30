@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warwalking Project</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #00ffcc; 
+            --bg-dark: #0a0e14;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --table-header-bg: rgba(0, 255, 204, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            padding-top: 100px; 
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .wifi-icon {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            transform: rotate(-15deg);
+            z-index: 10000;
+            text-shadow: 0 0 15px var(--primary-color);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: rotate(-15deg) scale(1); }
+            50% { opacity: 1; transform: rotate(-15deg) scale(1.1); }
+            100% { opacity: 0.4; transform: rotate(-15deg) scale(1); }
+        }
+
+        #map { 
+            height: 500px; 
+            width: 90%; 
+            margin: 30px auto; 
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+        }
+
+        .container, .data-table {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+ 
+        .view-toggle button {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.3s, color 0.3s;
+        }
+ 
+        .view-toggle button.active {
+            background-color: var(--primary-color);
+            color: var(--bg-dark);
+        }
+
+        .data-table {
+            width: 90%;
+            border-collapse: separate; 
+            border-spacing: 0;
+            margin-top: 30px;
+            overflow: hidden; 
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table thead th {
+            background-color: var(--table-header-bg);
+            backdrop-filter: blur(5px);
+            color: var(--primary-color);
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .data-table tbody tr:last-child td {
+            border-bottom: none; 
+        }
+
+        .data-table tbody td {
+            color: #ccc; 
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(0, 255, 204, 0.1); 
+            transform: scale(1.01); 
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2); 
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .data-table tbody tr:not(:hover) {
+             transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .action-button {
+            background-color: var(--primary-color);
+            color: var(--bg-dark);
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .action-button:hover {
+            background-color: #00e6b8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wifi-icon">
+        <i class="fas fa-wifi"></i>
+    </div>
+
+    <div class="container">
+        <h1>Warwalking</h1>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="container">
+        <h2>Wifi Table</h2>
+
+        <div class="view-toggle">
+            <button id="btn-current" class="active" onclick="loadData('current')">CURRENT SCAN</button>
+            <button id="btn-history" onclick="loadData('history')">HISTORY</button>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>BSSID</th>
+                    <th>SSID</th>
+                    <th>Channel</th>
+                    <th>Signal</th>
+                    <th>Security</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>RISK</th>
+                    <th>Evil</th>
+                    <th>Timestamp</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="wifi-body">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    var map = L.map('map').setView([32.4279, 53.6880], 5);
+ 
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+ 
+    var currentMarker = null;
+ 
+    function flyToLocation(lat, lng) {
+        if (!isNaN(lat) && !isNaN(lng)) {
+            map.flyTo([lat, lng], 15);
+            if (currentMarker !== null) {
+                map.removeLayer(currentMarker);
+            }
+            currentMarker = L.marker([lat, lng]).addTo(map)
+                .bindPopup("Location Found")
+                .openPopup();
+        } else {
+            console.error("Location not valid", lat, lng);
+        }
+    }
+ 
+    function renderTable(rows) {
+        var tbody = document.getElementById('wifi-body');
+        tbody.innerHTML = '';
+ 
+        rows.forEach(function (row) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.id ?? ''}</td>
+                <td>${row.BSSID ?? ''}</td>
+                <td>${row.SSID ?? ''}</td>
+                <td>${row.CHAN ?? ''}</td>
+                <td>${row.SIGNAL ?? ''}</td>
+                <td>${row.SECURITY ?? ''}</td>
+                <td>${row.LATITUDE ?? ''}</td>
+                <td>${row.LONGITUDE ?? ''}</td>
+                <td>${row.TOTAL_RISK ?? ''}</td>
+                <td>${row.EVIL ?? ''}</td>
+                <td>${row.TIMESTAMP ?? ''}</td>
+                <td>
+                    <button class="action-button" data-lat="${row.LATITUDE}" data-lng="${row.LONGITUDE}">
+                        Locate
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+ 
+        tbody.querySelectorAll('.action-button').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var lat = parseFloat(this.getAttribute('data-lat'));
+                var lng = parseFloat(this.getAttribute('data-lng'));
+                flyToLocation(lat, lng);
+            });
+        });
+    }
+ 
+    function loadData(view) {
+        var endpoint = view === 'current' ? '/api/current' : '/api/history';
+ 
+        document.getElementById('btn-current').classList.toggle('active', view === 'current');
+        document.getElementById('btn-history').classList.toggle('active', view === 'history');
+ 
+        fetch(endpoint)
+            .then(res => res.json())
+            .then(rows => renderTable(rows));
+    }
+ 
+    document.addEventListener('DOMContentLoaded', function () {
+        loadData('current'); 
+    });
+    </script>
+ 
+</body>
+</html>
