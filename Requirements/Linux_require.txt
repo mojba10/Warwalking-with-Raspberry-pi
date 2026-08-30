@@ -1,0 +1,2 @@
+sudo apt install aircrack-ng
+apt install network-manager
