@@ -1,0 +1,9 @@
+An important point for Raspberry Pi 4:
+Pi 4 has two UARTs. The main UART (/dev/ttyAMA0) is connected to Bluetooth by default. You should either disable Bluetooth or use /dev/ttyS0 (mini UART). Recommend is disabling BT because mini UART can sometimes become unstable. 
+
+In /boot/config.txt add this line:
+dtoverlay=disable-bt
+
+And in /boot/cmdline.txt remove this lines:
+console=serial0,115200
+enable_uart=1 #For all Rapberry
