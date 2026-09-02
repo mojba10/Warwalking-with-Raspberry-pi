@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify
 import sqlite3
+from core.config import DB_PATH
 
 app = Flask(__name__)
 
@@ -37,7 +38,7 @@ def api_current():
 
 @app.route('/api/history')
 def api_history():
-    con = sqlite3.connect('../database/mydatabase.db')
+    con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.execute("""
