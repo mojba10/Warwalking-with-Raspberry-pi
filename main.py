@@ -38,5 +38,7 @@ print("completing Database...")
 db_manager.insert_items(con, cur, wifi, lat, lon)
 db_manager.close_connection(con)
 
+wifi['LATITUDE'] = lat
+wifi['LONGITUDE'] = lon
 webapp.set_current_scan(wifi)
 webapp.app.run(host='0.0.0.0', debug=True, use_reloader=False)
