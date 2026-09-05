@@ -34,14 +34,12 @@ def create_table(con, cur):
     )""")
     con.commit()
 
-def insert_items(con, cur, wifi, latitude, longitude):
-    now = str(datetime.datetime.now())
+def insert_items(con, cur, wifi, latitude, longitude, now):
     for i in range(len(wifi)):
         bssid = wifi.loc[i, 'BSSID']
         ssid = wifi.loc[i, 'SSID']
 
         cur.execute("INSERT OR IGNORE INTO AP (BSSID, SSID) VALUES (?,?)", (bssid, ssid))
-
         cur.execute("""
             INSERT INTO scan (
                 BSSID, IN_USE, CHAN, FREQ, SIGNAL, BARS, SECURITY,
