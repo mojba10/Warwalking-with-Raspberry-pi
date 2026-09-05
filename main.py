@@ -3,12 +3,14 @@ from core.config import IFACE, DB_PATH
 from web import app as webapp
 from database import db_manager
 import subprocess
+import datetime
 
 subprocess.getoutput('sudo pinctrl set 14 a5')
 subprocess.getoutput('sudo pinctrl set 15 a5')
 
 print("Scanning...")
 wifi = wifi_scanner.scanning()
+now = str(datetime.datetime.now())
 
 print("Locating...")
 location = gps_reader.read_gps()
@@ -35,10 +37,11 @@ wifi = evil_twin_detector.check_evil_current(wifi)
 wifi = evil_twin_detector.check_evil_history(wifi, cur, lat, lon)
 
 print("completing Database...")
-db_manager.insert_items(con, cur, wifi, lat, lon)
+db_manager.insert_items(con, cur, wifi, lat, lon, now)
 db_manager.close_connection(con)
 
 wifi['LATITUDE'] = lat
 wifi['LONGITUDE'] = lon
+wifi['TIMESTAMP'] = now
 webapp.set_current_scan(wifi)
 webapp.app.run(host='0.0.0.0', debug=True, use_reloader=False)
