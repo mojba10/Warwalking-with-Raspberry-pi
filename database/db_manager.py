@@ -1,5 +1,4 @@
 import sqlite3
-import datetime
 
 def connector(path):
     con = sqlite3.connect(path)
