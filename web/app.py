@@ -31,7 +31,8 @@ def api_current():
             'LATITUDE': float(current_scan.loc[i, 'LATITUDE']) if 'LATITUDE' in current_scan.columns else None,
             'LONGITUDE': float(current_scan.loc[i, 'LONGITUDE']) if 'LONGITUDE' in current_scan.columns else None,
             'TOTAL_RISK': int(current_scan.loc[i, 'TOTAL RISK']),
-            'EVIL': current_scan.loc[i, 'EVIL']
+            'EVIL': current_scan.loc[i, 'EVIL'],
+            'TIMESTAMP': current_scan.loc[i, 'EVIL']
         })
 
     return jsonify(rows)
