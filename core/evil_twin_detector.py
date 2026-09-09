@@ -1,15 +1,17 @@
 import math
+import pandas as pd
+import sqlite3
 from datetime import datetime
 from database import db_manager
 
 
-def same_ssid(wifi) -> list:
+def same_ssid(wifi: pd.DataFrame) -> list:
     ssid = list(wifi['SSID'])
     unique_ssid = set(ssid)
     return [item for item in unique_ssid if ssid.count(item) > 1 and item != '']
 
 
-def check_novelty(wifi, cur) -> list:
+def check_novelty(wifi: pd.DataFrame, cur: sqlite3.Cursor) -> list:
     duplicates = set()
     for i in range(len(wifi)):
         ssid = wifi.loc[i, 'SSID']
@@ -22,7 +24,7 @@ def check_novelty(wifi, cur) -> list:
     return list(duplicates)
 
 
-def haversine(lat1, lon1, lat2, lon2):
+def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     R = 6371
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
@@ -31,7 +33,7 @@ def haversine(lat1, lon1, lat2, lon2):
     return 2 * R * math.asin(math.sqrt(a))
 
 
-def check_evil_current(wifi):
+def check_evil_current(wifi: pd.DataFrame) -> tuple[pd.DataFrame, list]:
     if 'EVIL' not in wifi.columns:
         wifi['EVIL'] = 'NONE'
 
@@ -57,7 +59,7 @@ def check_evil_current(wifi):
     return wifi, ess
 
 
-def check_evil_history(wifi, cur, latitude, longitude, ess, max_distance_km=1.0, max_hours=48):
+def check_evil_history(wifi: pd.DataFrame, cur: sqlite3.Cursor, latitude: float, longitude: float, ess: set, max_distance_km=1.0, max_hours=48) -> pd.DataFrame:
     if 'EVIL' not in wifi.columns:
         wifi['EVIL'] = 'NONE'
 
