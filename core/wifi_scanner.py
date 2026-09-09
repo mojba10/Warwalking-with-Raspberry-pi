@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import subprocess
 
-def scanning():
+def scanning() -> pd.DataFrame:
     wifi_str = subprocess.getoutput(f"nmcli -t -f IN-USE,BSSID,SSID,CHAN,FREQ,SIGNAL,BARS,SECURITY device wifi list ifname {IFACE}")
     rows = []
     for line in wifi_str.strip().split("\n"):
