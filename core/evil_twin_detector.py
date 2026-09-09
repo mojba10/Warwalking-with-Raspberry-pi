@@ -5,6 +5,7 @@ from datetime import datetime
 from database import db_manager
 
 
+
 def same_ssid(wifi: pd.DataFrame) -> list:
     ssid = list(wifi['SSID'])
     unique_ssid = set(ssid)
