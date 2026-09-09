@@ -4,15 +4,16 @@ import subprocess
 import time
 import os 
 import glob
+import pandas as pd
 
 BRANDS = ['TP-LINK', 'D-LINK', 'K-LINK', 'ASUS', 'Netgear', 'Huawei', 'Linksys', 'Mikrotik', 'Tenda', 'Zyxel', 'neterbit', 'netis', 'Zoltrix']
 STANDARDS = {'WPA1': 6, 'WPA2': 3, 'WPA2 802.1X': 2, 'WPA3 802.1X': 2, 'WPA3': 1, 'WPA1 WPA2': 5, 'WPA2 WPA3': 2, 'WEP': 8, 'OPEN': 10}
 
-def risk_standard(wifi):
+def risk_standard(wifi: pd.DataFrame) -> pd.DataFrame:
     wifi['RISK 1'] = wifi['SECURITY'].map(STANDARDS).fillna(7)
     return wifi
 
-def risk_default(wifi):
+def risk_default(wifi: pd.DataFrame) -> pd.DataFrame:
     wifi['RISK 2'] = 0
     for i in range(len(wifi)):
         for brand in BRANDS:
@@ -22,7 +23,7 @@ def risk_default(wifi):
                 break
     return wifi
 
-def risk_password(wifi):                
+def risk_password(wifi: pd.DataFrame) -> pd.DataFrame:                
     wifi['RISK 3'] = 0
     for i in range(len(wifi)):
         if wifi.loc[i,'SECURITY'] == 'OPEN':
@@ -81,6 +82,6 @@ def risk_password(wifi):
     
     return wifi
 
-def total_risk(wifi):
+def total_risk(wifi: pd.DataFrame) -> pd.DataFrame:
     wifi["TOTAL RISK"] = wifi["RISK 1"] + wifi["RISK 2"] + wifi["RISK 3"]
     return wifi
