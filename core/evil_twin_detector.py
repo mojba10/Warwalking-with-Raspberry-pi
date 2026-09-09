@@ -36,6 +36,7 @@ def check_evil_current(wifi):
         wifi['EVIL'] = 'NONE'
 
     dup = same_ssid(wifi)
+    ess = set()
     for name in dup:
         indices = list(wifi[wifi["SSID"] == name].index)
         for i in indices:
@@ -47,10 +48,16 @@ def check_evil_current(wifi):
                 if security_dif and brand_dif:
                     wifi.loc[i, 'EVIL'] = 'MEDIUM'
                     wifi.loc[j, 'EVIL'] = 'MEDIUM'
-    return wifi
+
+        if len(indices) > 2:
+            ouis = set(wifi.loc[idx, "BSSID"][:8] for idx in indices)
+            if len(ouis) == 1:  
+                ess.add(name)
+
+    return wifi, ess
 
 
-def check_evil_history(wifi, cur, latitude, longitude, max_distance_km=1.0, max_hours=48):
+def check_evil_history(wifi, cur, latitude, longitude, ess, max_distance_km=1.0, max_hours=48):
     if 'EVIL' not in wifi.columns:
         wifi['EVIL'] = 'NONE'
 
@@ -61,6 +68,10 @@ def check_evil_history(wifi, cur, latitude, longitude, max_distance_km=1.0, max_
         bssid = wifi.loc[i, 'BSSID']
 
         if ssid not in novel_ssids or latitude is None or longitude is None:
+            continue
+
+        if ssid in ess:
+            wifi.loc[i, "EVIL"] = 'NONE'
             continue
 
         last_seen = db_manager.get_last_seen(cur, ssid, bssid)
