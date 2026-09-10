@@ -48,7 +48,7 @@ In this project it is used raspberry pi 4 that have an internal wireless network
 ## Setup
  
 1. Edit `core/config.py` — set your Wi-Fi interface name, GPS port, database path, and wordlist path.
-2. Make sure the GPS UART pins are configured (`pinctrl`) and `nmcli` can see your Wi-Fi interface.
+2. Make sure the GPS module is working (go to note.txt in /GPS_config) and also `nmcli` can see your Wi-Fi interface.
 3. Run:
 ```bash
    python main.py
