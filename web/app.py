@@ -3,7 +3,6 @@ import sqlite3
 from core.config import DB_PATH
 
 app = Flask(__name__)
-
 current_scan = None
 
 def set_current_scan(wifi):
