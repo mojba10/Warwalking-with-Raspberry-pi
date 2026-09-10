@@ -12,3 +12,9 @@ dtoverlay=disable-bt
 And in /boot/cmdline.txt remove this lines:
 console=serial0,115200
 enable_uart=1
+
+For test gps, You can do one of these:
+1. Run gps_test.py in this directory
+2. Test these commands:
+>> sudo stty -F /dev/serial0 9600
+>> cat /dev/serial0
