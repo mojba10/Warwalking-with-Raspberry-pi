@@ -18,6 +18,11 @@ Would you like a login shell to be accessible over serial?  No >
 would you like the serial port hardware to be enabled?  Yes >
 sudo reboot
 
+For make sure that GPIO14 and GPIO15 are in TXD1 and RXD1 mode accordingly, use the following command:
+>> sudo pinctrl get 14(or 15)
+And to set the GPIOs to TXD1 and RXD1 mode, use the following command:
+>> sudo pinctrl set 14(or 15) a5
+
 For test gps, You can do one of these:
 1. Run gps_test.py in this directory
 2. Test these commands:
