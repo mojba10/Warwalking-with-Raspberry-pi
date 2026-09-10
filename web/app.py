@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify
-import sqlite3
 from core.config import DB_PATH
+import sqlite3
 
 app = Flask(__name__)
 current_scan = None
