@@ -1,12 +1,13 @@
 import sqlite3
+import pandas as pd
 
-def connector(path):
+def connector(path: str) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     con = sqlite3.connect(path)
     cur = con.cursor()
     cur.execute("PRAGMA foreign_keys = ON")
     return con,cur
 
-def create_table(con, cur):
+def create_table(con: sqlite3.Connection, cur: sqlite3.Cursor):
     cur.execute("""CREATE TABLE IF NOT EXISTS AP(
     BSSID TEXT PRIMARY KEY,
     SSID TEXT
@@ -33,7 +34,7 @@ def create_table(con, cur):
     )""")
     con.commit()
 
-def insert_items(con, cur, wifi, latitude, longitude, now):
+def insert_items(con: sqlite3.Connection, cur: sqlite3.Cursor, wifi: pd.DataFrame, latitude: float, longitude: float, now: str):
     for i in range(len(wifi)):
         bssid = wifi.loc[i, 'BSSID']
         ssid = wifi.loc[i, 'SSID']
@@ -63,12 +64,12 @@ def insert_items(con, cur, wifi, latitude, longitude, now):
         ))
     con.commit()
 
-def get_duplicate_bssid(cur, ssid):
+def get_duplicate_bssid(cur: sqlite3.Cursor, ssid: str) -> list:
     cur.execute("SELECT BSSID FROM AP WHERE SSID = ?", (ssid,))
     found_bssids = [row[0] for row in cur.fetchall()]
     return found_bssids
 
-def get_last_seen(cur, ssid, exclude_bssid):
+def get_last_seen(cur: sqlite3.Cursor, ssid: str, exclude_bssid: str) -> tuple:
     cur.execute("""
         SELECT scan.LATITUDE, scan.LONGITUDE, scan.TIMESTAMP
         FROM scan
@@ -79,5 +80,5 @@ def get_last_seen(cur, ssid, exclude_bssid):
     """, (ssid, exclude_bssid))
     return cur.fetchone()
 
-def close_connection(con):
+def close_connection(con: sqlite3.Connection):
     con.close()
