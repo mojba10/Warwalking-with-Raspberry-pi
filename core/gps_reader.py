@@ -2,7 +2,7 @@ import time
 import serial
 import pynmea2
 import logging
-from config import GPS_PORT, GPS_BAUDRATE, GPS_TIMEOUT, GPS_MAX_WAIT
+from core.config import GPS_PORT, GPS_BAUDRATE, GPS_TIMEOUT, GPS_MAX_WAIT
 
 def read_gps (port: str=GPS_PORT, baudrate: int=GPS_BAUDRATE, timeout: int=GPS_TIMEOUT, max_wait: int=GPS_MAX_WAIT) -> dict | None: 
     try:
