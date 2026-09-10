@@ -5,13 +5,18 @@ Recommend is disabling BT because mini UART can sometimes become unstable.
 However this ptoject is writen for mini UART. 
 
 For disabling Bluetooth do these:
-
 In /boot/config.txt add this line:
 dtoverlay=disable-bt
 
 And in /boot/cmdline.txt remove this lines:
 console=serial0,115200
 enable_uart=1
+
+Activating UART:
+sudo raspi-config > Interface Options > Serial Port >
+Would you like a login shell to be accessible over serial?  No >
+would you like the serial port hardware to be enabled?  Yes >
+sudo reboot
 
 For test gps, You can do one of these:
 1. Run gps_test.py in this directory
