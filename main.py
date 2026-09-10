@@ -33,8 +33,8 @@ con, cur = db_manager.connector(DB_PATH)
 db_manager.create_table(con, cur)
 
 print("Finding Evil...")
-wifi = evil_twin_detector.check_evil_current(wifi)
-wifi = evil_twin_detector.check_evil_history(wifi, cur, lat, lon)
+wifi, ess = evil_twin_detector.check_evil_current(wifi)
+wifi = evil_twin_detector.check_evil_history(wifi, cur, lat, lon, ess)
 
 print("completing Database...")
 db_manager.insert_items(con, cur, wifi, lat, lon, now)
