@@ -57,4 +57,4 @@ In this project it is used raspberry pi 4 that have an internal wireless network
  
 ## Disclaimer
  
-The password-auditing feature (`aircrack-ng` integration) is meant strictly for networks you own or have explicit permission to test. Testing networks without authorization is illegal in most jurisdictions.
+The password-auditing feature (`aircrack-ng` integration) is meant strictly for networks you own or have explicit permission to test. Testing networks without authorization is illegal in most places.
