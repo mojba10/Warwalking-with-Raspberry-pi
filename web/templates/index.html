@@ -167,6 +167,71 @@
             background-color: #00e6b8;
             transform: translateY(-2px);
         }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar input[type="text"],
+        .filter-bar select,
+        .filter-bar input[type="number"] {
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .filter-bar input[type="text"] {
+            min-width: 220px;
+        }
+
+        .filter-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .filter-bar label {
+            font-size: 12px;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 6px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .clear-filters {
+            background-color: transparent;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .clear-filters:hover {
+            background-color: #ff6b6b;
+            color: var(--bg-dark);
+        }
+
+        .result-count {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -188,6 +253,38 @@
             <button id="btn-current" class="active" onclick="loadData('current')">CURRENT SCAN</button>
             <button id="btn-history" onclick="loadData('history')">HISTORY</button>
         </div>
+
+        <div class="filter-bar">
+            <input type="text" id="filter-search" placeholder="Search by SSID or BSSID..." oninput="applyFilters()">
+
+            <div class="filter-group">
+                <label for="filter-security">Security</label>
+                <select id="filter-security" onchange="applyFilters()">
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter-evil">Evil</label>
+                <select id="filter-evil" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="NONE">NONE</option>
+                    <option value="LOW">LOW</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HIGH">HIGH</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter-min-risk">Min RISK</label>
+                <input type="number" id="filter-min-risk" min="0" max="30" placeholder="0" style="width: 70px;" oninput="applyFilters()">
+            </div>
+
+            <button class="clear-filters" onclick="clearFilters()">Clear Filters</button>
+        </div>
+
+        <div class="result-count" id="result-count"></div>
+
         <table class="data-table">
             <thead>
                 <tr>
@@ -270,6 +367,66 @@
         });
     }
  
+    var allRows = [];  // داده‌ی کامل و بدون فیلتر حالت فعلی (current یا history)
+
+    function populateSecurityOptions(rows) {
+        var select = document.getElementById('filter-security');
+        var current = select.value;
+        var values = Array.from(new Set(rows.map(r => r.SECURITY).filter(v => v))).sort();
+
+        select.innerHTML = '<option value="">All</option>';
+        values.forEach(function (v) {
+            var opt = document.createElement('option');
+            opt.value = v;
+            opt.textContent = v;
+            select.appendChild(opt);
+        });
+        if (values.includes(current)) {
+            select.value = current;
+        }
+    }
+
+    function applyFilters() {
+        var search = document.getElementById('filter-search').value.trim().toLowerCase();
+        var security = document.getElementById('filter-security').value;
+        var evil = document.getElementById('filter-evil').value;
+        var minRiskRaw = document.getElementById('filter-min-risk').value;
+        var minRisk = minRiskRaw === '' ? null : parseFloat(minRiskRaw);
+
+        var filtered = allRows.filter(function (row) {
+            if (search) {
+                var ssid = (row.SSID ?? '').toString().toLowerCase();
+                var bssid = (row.BSSID ?? '').toString().toLowerCase();
+                if (!ssid.includes(search) && !bssid.includes(search)) {
+                    return false;
+                }
+            }
+            if (security && row.SECURITY !== security) {
+                return false;
+            }
+            if (evil && row.EVIL !== evil) {
+                return false;
+            }
+            if (minRisk !== null && !(parseFloat(row.TOTAL_RISK) >= minRisk)) {
+                return false;
+            }
+            return true;
+        });
+
+        renderTable(filtered);
+
+        var countEl = document.getElementById('result-count');
+        countEl.textContent = filtered.length + ' of ' + allRows.length + ' networks shown';
+    }
+
+    function clearFilters() {
+        document.getElementById('filter-search').value = '';
+        document.getElementById('filter-security').value = '';
+        document.getElementById('filter-evil').value = '';
+        document.getElementById('filter-min-risk').value = '';
+        applyFilters();
+    }
+
     function loadData(view) {
         var endpoint = view === 'current' ? '/api/current' : '/api/history';
  
@@ -278,7 +435,11 @@
  
         fetch(endpoint)
             .then(res => res.json())
-            .then(rows => renderTable(rows));
+            .then(rows => {
+                allRows = rows;
+                populateSecurityOptions(rows);
+                applyFilters();
+            });
     }
  
     document.addEventListener('DOMContentLoaded', function () {
