@@ -75,10 +75,10 @@ def risk_password(wifi: pd.DataFrame) -> pd.DataFrame:
             wifi.loc[i, 'RISK 3'] = 8
 
         for f in glob.glob(f"{cap_file}-*"):
-                    try:
-                        os.remove(f)
-                    except OSError as e:
-                        print(f"Failed to remove {f}: {e}")
+            try:
+                os.remove(f)
+            except OSError as e:
+                print(f"Failed to remove {f}: {e}")
     
     return wifi
 
