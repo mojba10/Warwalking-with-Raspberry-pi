@@ -64,7 +64,7 @@
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
         }
 
-        .container, .data-table {
+        .container {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -73,6 +73,7 @@
             margin: 20px auto;
             width: 90%;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-sizing: border-box;
         }
 
         h1, h2 {
@@ -108,18 +109,26 @@
             color: var(--bg-dark);
         }
 
-        .data-table-container {
-        overflow-x: auto; 
-        max-width: 100%;
+        .table-outer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-width: 100%;
         }
 
         .data-table {
-            width: 90%;
-            min-width: 800px;
-            border-collapse: collapse; 
+            width: 100%;
+            min-width: 900px;
+            border-collapse: separate;
             border-spacing: 0;
-            margin-top: 30px;
-            overflow: hidden; 
         }
 
         .data-table th, .data-table td {
@@ -291,26 +300,30 @@
 
         <div class="result-count" id="result-count"></div>
 
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>BSSID</th>
-                    <th>SSID</th>
-                    <th>Channel</th>
-                    <th>Signal</th>
-                    <th>Security</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>RISK</th>
-                    <th>Evil</th>
-                    <th>Timestamp</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="wifi-body">
-            </tbody>
-        </table>
+        <div class="table-outer">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>BSSID</th>
+                            <th>SSID</th>
+                            <th>Channel</th>
+                            <th>Signal</th>
+                            <th>Security</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>RISK</th>
+                            <th>Evil</th>
+                            <th>Timestamp</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wifi-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -373,7 +386,7 @@
         });
     }
  
-    var allRows = [];  
+    var allRows = [];  // داده‌ی کامل و بدون فیلتر حالت فعلی (current یا history)
 
     function populateSecurityOptions(rows) {
         var select = document.getElementById('filter-security');
