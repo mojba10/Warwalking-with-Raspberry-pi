@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+from core.config import DB_PATH
 
 def connector(path: str) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     con = sqlite3.connect(path)
@@ -79,6 +80,24 @@ def get_last_seen(cur: sqlite3.Cursor, ssid: str, exclude_bssid: str) -> tuple:
         LIMIT 1
     """, (ssid, exclude_bssid))
     return cur.fetchone()
+
+def get_history(path: str) -> list:
+    con = sqlite3.connect(path) 
+    con.row_factory = sqlite3.Row
+    
+    try:
+        cur = con.cursor()
+        cur.execute("""
+            SELECT scan.id, AP.BSSID, AP.SSID, scan.CHAN, scan.SIGNAL,
+                scan.SECURITY, scan.LATITUDE, scan.LONGITUDE,
+                scan.TOTAL_RISK, scan.EVIL, scan.TIMESTAMP
+            FROM scan
+            JOIN AP ON scan.BSSID = AP.BSSID
+            ORDER BY scan.TIMESTAMP DESC
+        """)
+        return [dict(row) for row in cur.fetchall()]
+    finally:
+        con.close()
 
 def close_connection(con: sqlite3.Connection):
     con.close()
