@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify
 from core.config import DB_PATH
-import sqlite3
+from database import db_manager
 
 app = Flask(__name__)
 current_scan = None
@@ -38,20 +38,5 @@ def api_current():
 
 @app.route('/api/history')
 def api_history():
-    con = sqlite3.connect(DB_PATH)
-    con.row_factory = sqlite3.Row
-    cur = con.cursor()
-    cur.execute("""
-        SELECT scan.id, AP.BSSID, AP.SSID, scan.CHAN, scan.SIGNAL,
-               scan.SECURITY, scan.LATITUDE, scan.LONGITUDE,
-               scan.TOTAL_RISK, scan.EVIL, scan.TIMESTAMP
-        FROM scan
-        JOIN AP ON scan.BSSID = AP.BSSID
-        ORDER BY scan.TIMESTAMP DESC
-    """)
-    rows = []
-    for row in cur.fetchall():
-        row_dict = dict(row)
-        rows.append(row_dict)
-    con.close()
+    rows = db_manager.get_history(DB_PATH)
     return jsonify(rows)
