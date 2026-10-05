@@ -1,6 +1,5 @@
 import sqlite3
 import pandas as pd
-from core.config import DB_PATH
 
 def connector(path: str) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     con = sqlite3.connect(path)
